@@ -53,7 +53,7 @@ public class AccountController {
             String token = MyUtils.generateToken();
             securityUserService.createPasswordResetTokenForUser(user, token);
             Mail mail = new Mail();
-            mail.setFrom("no-reply@webtechappliances.com");
+            mail.setFrom("info.techshopsupplies@gmail.com");
             mail.setTo(user.getEmail());
             mail.setSubject("Password reset request");
 
