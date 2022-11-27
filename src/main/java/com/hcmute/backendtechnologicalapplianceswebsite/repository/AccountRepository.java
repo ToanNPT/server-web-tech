@@ -9,4 +9,11 @@ import java.util.List;
 public interface AccountRepository extends JpaRepository<Account, String> {
     @Query("select (count(a) > 0) from Account a")
     boolean existsByEmail();
+
+    @Query("select a " +
+            "from Account as a " +
+            "where a.role = 2")
+    List<Account> getShipperAccount();
+
+
 }

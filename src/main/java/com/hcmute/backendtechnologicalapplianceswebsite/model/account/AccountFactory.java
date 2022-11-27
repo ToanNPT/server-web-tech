@@ -12,6 +12,9 @@ public class AccountFactory {
         } else if (role == Account.ROLE_ADMIN) {
             return new AdminFactory();
         }
+        else if(role == Account.ROLE_SHIPPER){
+            return new ShipperFactory();
+        }
         return null;
     }
 }

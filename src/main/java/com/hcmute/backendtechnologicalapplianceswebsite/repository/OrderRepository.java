@@ -4,7 +4,9 @@ import com.hcmute.backendtechnologicalapplianceswebsite.model.Order;
 import com.hcmute.backendtechnologicalapplianceswebsite.model.User;
 import com.hcmute.backendtechnologicalapplianceswebsite.utils.MyUtils;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.Date;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, String> {
@@ -33,4 +35,24 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     }
 
     Iterable<Order> findAllByUser(User user);
+
+    @Query("select o " +
+            "from Order as o " +
+            "where o.shipper is null or o.shipper = '' ")
+    List<Order> getOrdersNoShipper();
+
+    @Query("select o " +
+            "from Order as o " +
+            "where o.shipper = :shipper and o.status = 'delivering'")
+    List<Order> getOrdersOfShipperNoComplete(String shipper);
+
+    @Query("select o " +
+            "from Order as o " +
+            "where o.shipper = :shipper and o.status = 'delivered'")
+    List<Order> getDeliveredOrderByShipper(String shipper);
+
+    @Query("select o " +
+            "from Order as o " +
+            "where o.status = 'delivered' and o.shipper = :shipper and o.deliveredDate = :date ")
+    List<Order> getDeliveredOfShipperToday(String shipper, String date);
 }

@@ -1,5 +1,6 @@
 package com.hcmute.backendtechnologicalapplianceswebsite.controller;
 
+import com.hcmute.backendtechnologicalapplianceswebsite.dto.RegisterForm;
 import com.hcmute.backendtechnologicalapplianceswebsite.model.Account;
 import com.hcmute.backendtechnologicalapplianceswebsite.model.Mail;
 import com.hcmute.backendtechnologicalapplianceswebsite.model.PasswordResetToken;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -154,5 +156,36 @@ public class AccountController {
         log.info("Change role for " + account.getUsername() + " to " + Account.getRoleName(account.getRole()));
         return ResponseEntity.ok(account.getUser());
     }
+
+    @GetMapping("/shippers")
+    public ResponseEntity<List<Account>> getAccountShipper(){
+        List<Account> shippers = accountRepository.getShipperAccount();
+        return ResponseEntity.ok(shippers);
+    }
+
+    @PostMapping("register/shipper")
+    public ResponseEntity<User> registerShipperAccount(@RequestBody RegisterForm form){
+        User newUser = new User();
+        newUser.setAddress(form.getAddress());
+        newUser.setEmail(form.getEmail());
+        newUser.setDateOfBirth(form.getDateOfBirth());
+        newUser.setPhoneNumber(form.getPhoneNumber());
+        newUser.setGender(form.getGender());
+        newUser.setName(form.getName());
+        newUser.setUsername(form.getUsername());
+
+        AccountAbstractFactory factory = AccountFactory.getFactory(Account.ROLE_SHIPPER);
+        if(factory != null){
+            Account account = factory.createAccount(form.getUsername(),
+                    passwordEncoder.encode(form.getPassword()));
+            account.setUser(newUser);
+            account.setRole(Account.ROLE_SHIPPER);
+            Account inserted = accountRepository.save(account);
+            return ResponseEntity.status(HttpStatus.OK).body(newUser);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+
 
 }

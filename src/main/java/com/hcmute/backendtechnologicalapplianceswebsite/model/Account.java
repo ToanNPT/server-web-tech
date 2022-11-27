@@ -18,6 +18,9 @@ public class Account implements Serializable {
     @JsonIgnore
     public static final int ROLE_ADMIN = 1;
 
+    @JsonIgnore
+    public static final int ROLE_SHIPPER = 2;
+
     public Account() {
 
     }
@@ -34,6 +37,8 @@ public class Account implements Serializable {
             return "ROLE_USER";
         } else if (role == ROLE_ADMIN) {
             return "ROLE_ADMIN";
+        } else if(role == ROLE_SHIPPER){
+            return "ROLE_SHIPPER";
         }
         return "";
     }

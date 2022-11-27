@@ -1,16 +1,26 @@
 package com.hcmute.backendtechnologicalapplianceswebsite.controller;
 
+import com.hcmute.backendtechnologicalapplianceswebsite.model.Account;
 import com.hcmute.backendtechnologicalapplianceswebsite.model.Delivery;
 import com.hcmute.backendtechnologicalapplianceswebsite.model.Order;
 import com.hcmute.backendtechnologicalapplianceswebsite.model.User;
+import com.hcmute.backendtechnologicalapplianceswebsite.repository.AccountRepository;
 import com.hcmute.backendtechnologicalapplianceswebsite.repository.DeliveryRepository;
 import com.hcmute.backendtechnologicalapplianceswebsite.repository.OrderRepository;
 import com.hcmute.backendtechnologicalapplianceswebsite.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"})
@@ -20,11 +30,14 @@ public class OrderController {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final DeliveryRepository deliveryRepository;
+    private final AccountRepository accountRepository;
 
-    public OrderController(OrderRepository orderRepository, UserRepository userRepository, DeliveryRepository deliveryRepository) {
+    public OrderController(OrderRepository orderRepository, UserRepository userRepository,
+                           DeliveryRepository deliveryRepository, AccountRepository accountRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.deliveryRepository = deliveryRepository;
+        this.accountRepository = accountRepository;
     }
 
 
@@ -100,4 +113,70 @@ public class OrderController {
         log.info("Delete order: {}", order);
         return ResponseEntity.ok(order);
     }
+
+    @PutMapping("/orders/{orderId}/update-shipper/{shipper}")
+    public ResponseEntity<?> updateShipperForOrder(@PathVariable("orderId") String id,
+                                                       @PathVariable("shipper") String username){
+        Optional<Order> order = orderRepository.findById(id);
+        if(!order.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("order not found");
+        Optional<Account> account = accountRepository.findById(username);
+        if(!account.isPresent() || account.get().getRole() != 2)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("account is not found");
+        order.get().setShipper(username);
+        order.get().setStatus("delivering");
+        Order updated = orderRepository.save(order.get());
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("orders/no-shipper")
+    public ResponseEntity<?> getOrderNoShipper(){
+        List<Order> list = orderRepository.getOrdersNoShipper();
+        return ResponseEntity.ok(list);
+    }
+
+    @PutMapping("orders/{orderId}/complete-delivery/{shipper}")
+    public ResponseEntity<?> updateCompleteDelivery(@PathVariable("orderId") String id,
+                                                    @PathVariable("shipper") String username){
+        Optional<Order> order = orderRepository.findById(id);
+        if(!order.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("order not found");
+        Optional<Account> account = accountRepository.findById(username);
+        if(!account.isPresent() || account.get().getRole() != 2)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("account is not found");
+        if(account.get().getUsername() != order.get().getShipper())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("you are not a shipper of order");
+        if(order.get().getStatus() == "delivered")
+            return ResponseEntity.badRequest().body("You can not update status because order was delivered");
+
+        order.get().setStatus("delivered");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String current = dateFormat.format(new Date());
+        order.get().setDeliveredDate(current);
+        Order updated = orderRepository.save(order.get());
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("orders/shippers/{shipper}/no-complete")
+    public ResponseEntity<?> getOrdersOfShipperNoComplete(@PathVariable("shipper") String username){
+        List<Order> list =  orderRepository.getOrdersOfShipperNoComplete(username);
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("orders/shippers/{shipper}/delivered")
+    public ResponseEntity<?> getDeliveredOrderByShipper(@PathVariable("shipper") String username){
+        List<Order> list = orderRepository.getDeliveredOrderByShipper(username);
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("order/shippers/{shipper}/delivered-today")
+    public ResponseEntity<?> getDeliveredToday(@PathVariable("shipper") String username){
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String current = dateFormat.format(new Date());
+
+        //String today = String.valueOf(date.getYear()) + '-' + String.valueOf(date.getMonth() + 1) + '-' + String.valueOf(date.getDate());
+        List<Order> list = orderRepository.getDeliveredOfShipperToday(username, current);
+        return ResponseEntity.ok(list);
+    }
+
 }

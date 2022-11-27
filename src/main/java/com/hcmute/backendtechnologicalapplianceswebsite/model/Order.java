@@ -43,6 +43,28 @@ public class Order implements Serializable {
     @Column(name = "DiscountPrice")
     private Double discountPrice;
 
+    @Column(name = "shipper_account")
+    private String shipper;
+
+    @Column(name = "delivered_date")
+    private String deliveredDate;
+
+    public String getDeliveredDate() {
+        return deliveredDate;
+    }
+
+    public void setDeliveredDate(String deliveredDate) {
+        this.deliveredDate = deliveredDate;
+    }
+
+    public String getShipper() {
+        return shipper;
+    }
+
+    public void setShipper(String shipper) {
+        this.shipper = shipper;
+    }
+
     public Double getDiscountPrice() {
         return discountPrice;
     }
