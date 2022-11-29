@@ -42,6 +42,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/api/technological_appliances/register/shipper").permitAll()
+                .antMatchers("/api/technological_appliances/shippers").permitAll()
+                .antMatchers("/api/technological_appliances/shippers").permitAll()
+                .antMatchers("/api/technological_appliances/orders/*").permitAll()
+                .antMatchers("/api/technological_appliances/orders/no-shipper").permitAll()
                 .anyRequest().permitAll();
 
         http.addFilter(customAuthenticationFilter);

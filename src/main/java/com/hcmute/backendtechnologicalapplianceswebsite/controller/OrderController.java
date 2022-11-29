@@ -169,7 +169,7 @@ public class OrderController {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("order/shippers/{shipper}/delivered-today")
+    @GetMapping("orders/shippers/{shipper}/delivered-today")
     public ResponseEntity<?> getDeliveredToday(@PathVariable("shipper") String username){
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String current = dateFormat.format(new Date());

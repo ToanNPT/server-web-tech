@@ -42,6 +42,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             publicPaths.add(apiPath + "/categories/**");
             publicPaths.add("/getImage/**");
             publicPaths.add("/downloadFile/**");
+            publicPaths.add("/api/technological_appliances/shippers");
+            publicPaths.add("/api/technological_appliances/shippers");
+            publicPaths.add("/api/technological_appliances/orders/*");
+            publicPaths.add("/api/technological_appliances/orders/no-shipper");
 
             for (String path : publicPaths) {
                 if (path.contains("/**") && servletPath.startsWith(path.replace("/**", ""))) {
@@ -56,6 +60,18 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             publicPaths.add(apiPath + "/register");
             publicPaths.add(apiPath + "/forgot-password/**");
             publicPaths.add(apiPath + "/reset-password/**");
+            publicPaths.add("/api/technological_appliances/register/shipper");
+
+            for (String path : publicPaths) {
+                if (path.contains("/**") && servletPath.startsWith(path.replace("/**", ""))) {
+                    return true;
+                } else if (servletPath.equals(path)) {
+                    return true;
+                }
+            }
+        }else if(method.equals("PUT")){
+            List<String> publicPaths = new ArrayList<>();
+            publicPaths.add("/api/technological_appliances/orders/**");
 
             for (String path : publicPaths) {
                 if (path.contains("/**") && servletPath.startsWith(path.replace("/**", ""))) {
