@@ -179,4 +179,24 @@ public class OrderController {
         return ResponseEntity.ok(list);
     }
 
+    @PutMapping("orders/{orderId}/shippers/{shipper}/remove-shipper")
+    public ResponseEntity<?> removeShipperInOrder(@PathVariable("shipper") String username,
+                                                  @PathVariable("orderId") String orderId){
+        Optional<Order> order = orderRepository.findById(orderId);
+        if(!order.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("order not found");
+        Optional<Account> account = accountRepository.findById(username);
+        if(!account.isPresent() || account.get().getRole() != 2)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("account is not found");
+//        if(account.get().getUsername() != order.get().getShipper())
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("you are not a shipper of order");
+
+        if(order.get().getStatus().equals("delivered"))
+            return ResponseEntity.ok("order was delivered successfully");
+
+        order.get().setShipper(null);
+        order.get().setStatus("preparing");
+        orderRepository.save(order.get());
+        return ResponseEntity.ok("remove shipper in order success");
+    }
 }
