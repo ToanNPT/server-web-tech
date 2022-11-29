@@ -106,7 +106,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
                     log.info("Current user: {}, roles: {}", username, roles);
-                    if (Arrays.asList(roles).contains("ROLE_ADMIN")) { // Check if user is admin
+                    if (Arrays.asList(roles).contains("ROLE_ADMIN") || Arrays.asList(roles).contains("ROLE_SHIPPER")) { // Check if user is admin
                         filterChain.doFilter(request, response);
                     } else { // For user
                         if (isValidUserRequest(request, username)) {
